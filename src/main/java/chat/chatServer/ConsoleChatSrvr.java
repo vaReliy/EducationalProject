@@ -1,15 +1,10 @@
 package chat.chatServer;
 
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-/**
- * Created by Intellij IDEA.
- * 17.05.14 by vg
- */
 
 public class ConsoleChatSrvr {
     private ServerSocket serverSocket;

@@ -1,6 +1,5 @@
 package chat.chatClient;
 
-
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.DefaultCaret;
@@ -11,9 +10,6 @@ import java.net.*;
 import java.util.*;
 
 
-/**
- * Created by vg on 22.05.14.
- */
 public class ChatClientGui extends JFrame {
     private Socket socket;
     private PrintWriter pw;
@@ -123,7 +119,7 @@ public class ChatClientGui extends JFrame {
                         Thread thChatRoom = new ChatRoomBlink();
                         thChatRoom.setDaemon(true);
 
-                        Thread chatReaderFromServer = new ChatReaderToTextArray();
+                        Thread chatReaderFromServer = new ChatReaderToChatRoom();
                         chatReaderFromServer.setDaemon(true);
 
                         Thread statusLabel = new StatusConnection();
@@ -229,7 +225,7 @@ public class ChatClientGui extends JFrame {
         }
     }
 
-    private class ChatReaderToTextArray extends Thread {
+    private class ChatReaderToChatRoom extends Thread {
         @Override
         public void run() {
             String msg = "";
