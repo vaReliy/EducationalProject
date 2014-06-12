@@ -25,6 +25,8 @@ public class ChatClientGui extends JFrame {
     private JTextField portField;
     private JLabel statusConnection;
     private JLabel chatRoom;
+    private JButton connectBtn;
+    private JButton disconnectBtn;
 
     public ChatClientGui() {
         setTitle("ChatClientGui v0.5 beta");
@@ -45,10 +47,11 @@ public class ChatClientGui extends JFrame {
         ipField.setHorizontalAlignment(JTextField.RIGHT);
         portField = new JTextField("30000");
         portField.setPreferredSize(new Dimension(100, 25));
-        JButton connectBtn = new JButton("Connect");
+        connectBtn = new JButton("Connect");
         connectBtn.setPreferredSize(new Dimension(100, 25));
-        JButton disconnectBtn = new JButton("Disconnect");
+        disconnectBtn = new JButton("Disconnect");
         disconnectBtn.setPreferredSize(new Dimension(120, 25));
+        disconnectBtn.setEnabled(false);
         statusConnection = new JLabel("NOT CONNECTED!");
         chatRoom = new JLabel("CHAT ROOM");
         upPanel.add(ipField);
@@ -114,6 +117,8 @@ public class ChatClientGui extends JFrame {
                         socket = new Socket(ipField.getText(), port);
                         pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
                         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        disconnectBtn.setEnabled(true);
+                        connectBtn.setEnabled(false);
                         isConnected = true;
 
                         Thread thChatRoom = new ChatRoomBlink();
@@ -123,6 +128,7 @@ public class ChatClientGui extends JFrame {
                         chatReaderFromServer.setDaemon(true);
 
                         Thread statusLabel = new StatusConnection();
+                        statusLabel.setDaemon(true);
 
                         Thread statusOnlineUsers = new StatusOnlineUsers();
                         statusOnlineUsers.setDaemon(true);
@@ -150,13 +156,8 @@ public class ChatClientGui extends JFrame {
         disconnectBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    pw.println("/exit");
-                    isConnected = false;
-                    socket.close();
-                } catch (IOException err) {
-                    System.out.println("Error closing socket " + err);
-                }
+                pw.println("/exit");
+                actionDisconnect();
             }
         });
 
@@ -175,6 +176,9 @@ public class ChatClientGui extends JFrame {
         if (tmp[0].equals("@YouNickNameIs")) {
             nickName = tmp[1];
         }
+        if (tmp[0].equals("@YouIsDisconnect")) {
+            actionDisconnect();
+        }
         if (tmp[0].equals("@NowOnlineUsers")) {
             usersOnline.clear();
             for (int i = 1; i < tmp.length; i++) {
@@ -185,6 +189,17 @@ public class ChatClientGui extends JFrame {
                 usersField.append(nick);
                 usersField.append("\n");
             }
+        }
+    }
+
+    private void actionDisconnect(){
+        try {
+            isConnected = false;
+            disconnectBtn.setEnabled(false);
+            connectBtn.setEnabled(true);
+            socket.close();
+        } catch (IOException err) {
+            System.out.println("Error closing socket " + err);
         }
     }
 
@@ -252,10 +267,11 @@ public class ChatClientGui extends JFrame {
         public void run() {
 
             try {
-                while (!isInterrupted()){
-                    if (isConnected) {
+                while (true){
+                    if (!connectBtn.isEnabled()) {
                         statusConnection.setText("connected to " + socket.getInetAddress().getHostAddress());
-                    } else {
+                    }
+                    if (!disconnectBtn.isEnabled()) {
                         statusConnection.setText("disconnected from " + socket.getInetAddress().getHostAddress());
                     }
                     Thread.sleep(1000);

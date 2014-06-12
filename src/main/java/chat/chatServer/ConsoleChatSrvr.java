@@ -86,7 +86,7 @@ public class ConsoleChatSrvr {
                     }
                 }
             } catch (IOException e) {
-                System.out.println("exception on ClientThread.run(): " + e);
+                System.err.println("exception on ClientThread.run(): " + e);
 //                e.printStackTrace();
             } finally {
                 if (socket != null) {
@@ -119,6 +119,7 @@ public class ConsoleChatSrvr {
                     m = "[SERVER]>: user '" + nickName + "' left chat..";
                     System.out.println(m);
                     sendAll(m);
+                    pw.println("@YouIsDisconnect");
                     isCommand = true;
                 }
                 if (msg.trim().equalsIgnoreCase("/users")) {
@@ -166,7 +167,7 @@ public class ConsoleChatSrvr {
                 try {
                     pwAll = new PrintWriter(new OutputStreamWriter(s.getOutputStream()), true);
                 } catch (IOException e) {
-                    System.out.println("error in sendAll() method: " + e);
+                    System.err.println("error in sendAll() method: " + e);
                 }
                 pwAll.println(message);
             }
